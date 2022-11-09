@@ -23,7 +23,7 @@ INSERT INTO PETFACTUALSTREAM
     WHERE `factType` = 'factual'
     EMIT CHANGES;
 
-/* previous atatmpts... */
+/* previous attempts... */
 /* inserting cat facts filtered by factType */
 /* this doesn't work...
 CREATE STREAM PETFACTUALSTREAM

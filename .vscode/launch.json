@@ -6,6 +6,34 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch FactualConsumer",
+            "request": "launch",
+            "mainClass": "com.lappis.demo.consumer.FactualConsumer",
+            "projectName": "consumer"
+        },
+        {
+            "type": "java",
+            "name": "Launch DogProducer",
+            "request": "launch",
+            "mainClass": "com.lappis.demo.producer.DogProducer",
+            "projectName": "dogproducer"
+        },
+        {
+            "type": "java",
+            "name": "Launch CatProducer",
+            "request": "launch",
+            "mainClass": "com.lappis.demo.producer.CatProducer",
+            "projectName": "catproducer"
+        },
+        {
+            "type": "java",
+            "name": "Launch CatProducer",
+            "request": "launch",
+            "mainClass": "com.lappis.demo.CatProducer",
+            "projectName": "catproducer"
+        },
+        {
+            "type": "java",
             "name": "Launch ProducerDemo",
             "request": "launch",
             "mainClass": "com.lappis.demo.producer.ProducerDemo",

@@ -1,0 +1,18 @@
+{
+  "doc": "Dog fact schema",
+  "fields": [
+    {
+      "doc": "The type of fact, fact or anecdote",
+      "name": "factType",
+      "type": "string"
+    },
+    {
+      "doc": "The fact",
+      "name": "fact",
+      "type": "string"
+    }
+  ],
+  "name": "dogFact",
+  "namespace": "com.lappis.demo",
+  "type": "record"
+}

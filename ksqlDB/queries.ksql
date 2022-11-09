@@ -1,7 +1,67 @@
-CREATE STREAM PETFACTSTREAM
-    WITH (KAFKA_TOPIC='petFacts',
-    VALUE_FORMAT='AVRO');
-	
+/* creating cat fact streams from topic */
+CREATE STREAM CATFACTSTREAM
+    (`factType` STRING, `fact` STRING)
+    WITH (KAFKA_TOPIC='catFacts', VALUE_FORMAT='AVRO');
+
+/* creating cat fact streams from topic */
+/* this is the only way the filtering will work, if the stream is created from an existing topic, there will not be any data streaming to it */
+CREATE STREAM DOGFACTSTREAM
+    (`factType` STRING, `fact` STRING)
+    WITH (KAFKA_TOPIC='dogFacts', VALUE_FORMAT='AVRO');
+
+/* creating pet factual stream from cat stream filtered by factType */
 CREATE STREAM PETFACTUALSTREAM
-	AS SELECT * FROM PETFACTSTREAM
-	WHERE FACTTYPE='factual';
+    AS SELECT 'cat' AS `petSpecies', `factType`, `fact`
+    FROM CATFACTSTREAM
+    WHERE `factType` = 'factual'
+    EMIT CHANGES;
+
+/* insertint from dog stream filtered by factType
+INSERT INTO PETFACTUALSTREAM
+    SELECT 'dog' AS `petSpecies`, `factType`, `fact`
+    FROM  DOGFACTSTREAM 
+    WHERE `factType` = 'factual'
+    EMIT CHANGES;
+
+/* previous atatmpts... */
+/* inserting cat facts filtered by factType */
+/* this doesn't work...
+CREATE STREAM PETFACTUALSTREAM
+    (`petSpecies` STRING,`factType` STRING,`fact` STRING);
+    
+    WITH (KAFKA_TOPIC='petFactuals', VALUE_FORMAT='AVRO')
+INSERT INTO PETFACTUALSTREAM
+    SELECT 'cat' AS `petSpecies`, `factType`, `fact`
+    FROM  CATFACTSTREAM
+    WHERE `factType` = 'factual'
+    EMIT CHANGES;
+INSERT INTO PETFACTUALSTREAM 
+    SELECT 'dog' as `petSpecies`, `factType`, `fact`
+    FROM DOGFACTSTREAM
+    WHERE `factType` = 'factual'
+    EMIT CHANGES;
+
+/* inserting cat and dog factual streams to pet stream */
+/* this doesn't work either... */
+CREATE STREAM CATFACTUALSTREAM WITH (VALUE_FORMAT='AVRO')
+    AS SELECT `factType`,`fact`
+    FROM CATFACTSTREAM
+    WHERE `factType` = 'factual'
+    EMIT CHANGES;
+CREATE STREAM DOGFACTUALSTREAM WITH (VALUE_FORMAT='AVRO')
+    AS SELECT `factType`,`fact`
+    FROM DOGFACTSTREAM
+    WHERE `factType` = 'factual'
+    EMIT CHANGES;
+CREATE STREAM PETFACTUALSTREAM
+    (`petSpecies` STRING, `factType` STRING, `fact` STRING)
+    WITH (KAFKA_TOPIC='petFactuals',
+    VALUE_FORMAT='AVRO');
+INSERT INTO PETFACTUALSTREAM
+    SELECT 'cat' AS `petSpecies`, CATFACTUALSTREAM.`factType` `factType`, CATFACTUALSTREAM.`fact` `fact`
+    FROM   CATFACTUALSTREAM CATFACTUALSTREAM
+    EMIT CHANGES;
+INSERT INTO PETFACTUALSTREAM
+    SELECT 'dog' AS `petSpecies`, `factType`, `fact`
+    FROM   DOGFACTUALSTREAM
+    EMIT CHANGES;

@@ -1,1 +1,5 @@
 /java.config
+
+/consumer/target
+/catproducer/target
+/dogproducer/target

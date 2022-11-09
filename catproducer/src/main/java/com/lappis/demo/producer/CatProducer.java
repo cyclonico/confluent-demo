@@ -138,6 +138,7 @@ public class CatProducer
         }
 
         props.put("acks","all");
+        props.put("batch.size",16384);
         props.put("linger.ms", 0);
 
         // key and value serialisers

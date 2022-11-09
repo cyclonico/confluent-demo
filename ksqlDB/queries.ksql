@@ -1,34 +1,38 @@
-/* creating cat fact streams from topic */
+# creating cat fact streams from topic
+# the order of the fields is important, see schema
 CREATE STREAM CATFACTSTREAM
     (`factType` STRING, `fact` STRING)
     WITH (KAFKA_TOPIC='catFacts', VALUE_FORMAT='AVRO');
 
-/* creating cat fact streams from topic */
-/* this is the only way the filtering will work, if the stream is created from an existing topic, there will not be any data streaming to it */
+# creating cat fact streams from topic
+# this is the only way the filtering will work, if the stream is created from an existing topic, there will not be any data streaming to it
 CREATE STREAM DOGFACTSTREAM
     (`factType` STRING, `fact` STRING)
     WITH (KAFKA_TOPIC='dogFacts', VALUE_FORMAT='AVRO');
 
-/* creating pet factual stream from cat stream filtered by factType */
+# creating pet factual stream from cat stream filtered by factType
+# this is the only way futher insertion seem to work...
+# make sure field names are between `` otherwise they are converted to uppercase
 CREATE STREAM PETFACTUALSTREAM
     AS SELECT 'cat' AS `petSpecies', `factType`, `fact`
     FROM CATFACTSTREAM
     WHERE `factType` = 'factual'
     EMIT CHANGES;
 
-/* insertint from dog stream filtered by factType
+# insertint from dog stream filtered by factType
 INSERT INTO PETFACTUALSTREAM
     SELECT 'dog' AS `petSpecies`, `factType`, `fact`
     FROM  DOGFACTSTREAM 
     WHERE `factType` = 'factual'
     EMIT CHANGES;
 
-/* previous attempts... */
-/* inserting cat facts filtered by factType */
-/* this doesn't work...
+
+# -----------------------------------------------------
+# previous attempts...
+# inserting cat facts filtered by factType
+# this doesn't work... no insertion
 CREATE STREAM PETFACTUALSTREAM
     (`petSpecies` STRING,`factType` STRING,`fact` STRING);
-    
     WITH (KAFKA_TOPIC='petFactuals', VALUE_FORMAT='AVRO')
 INSERT INTO PETFACTUALSTREAM
     SELECT 'cat' AS `petSpecies`, `factType`, `fact`
@@ -41,8 +45,8 @@ INSERT INTO PETFACTUALSTREAM
     WHERE `factType` = 'factual'
     EMIT CHANGES;
 
-/* inserting cat and dog factual streams to pet stream */
-/* this doesn't work either... */
+# inserting cat and dog factual streams to pet stream
+# this doesn't work either, no insertion
 CREATE STREAM CATFACTUALSTREAM WITH (VALUE_FORMAT='AVRO')
     AS SELECT `factType`,`fact`
     FROM CATFACTSTREAM

@@ -25,8 +25,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.SerializationException;
 
 /**
- * pet fact producer app
- * 
+ * Dog fact producer app
+ * fetches facts from the dog facts API, and streams the data to the dogFacts topic on the Confluent cloud
  */
 public class DogProducer 
 {
@@ -62,7 +62,7 @@ public class DogProducer
                 // send record to kafka topic
                 producer.send(new ProducerRecord<String,GenericRecord>(topic,key,petFactRecord));
 
-                Thread.sleep(500);
+                Thread.sleep(1);
 
                 //keepProducing = false;
             }
@@ -78,7 +78,7 @@ public class DogProducer
     }
 
     /**
-     * 
+     * builds a fact record that will compy with the given schema, this is specific to the cat/dog facts
      * @param schema
      * @param species
      * @param type
@@ -95,7 +95,7 @@ public class DogProducer
     }
 
     /**
-     * 
+     * loads the schema from the given file
      * @param fName
      * @return
      */
@@ -121,7 +121,7 @@ public class DogProducer
     }
 
     /**
-     * 
+     * loads the properties for the producer and schema registry from the given file name
      * @param fName
      * @return
      */
@@ -135,6 +135,9 @@ public class DogProducer
             e.printStackTrace();
             System.exit(-1);
         }
+
+        props.put("acks","all");
+        props.put("linger.ms", 0);
 
         // key and value serialisers
         props.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
@@ -176,17 +179,11 @@ public class DogProducer
             conn.disconnect();
 
         } catch (MalformedURLException e) {
-
             e.printStackTrace();
-
         } catch (IOException e) {
-
             e.printStackTrace();
-
         } catch (JSONException e) {
-
             e.printStackTrace();
-
         }
 
         return result;

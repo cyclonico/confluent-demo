@@ -13,6 +13,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 import org.json.JSONObject;
+
 import org.json.JSONException;
 
 import java.util.Properties;
@@ -25,8 +26,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.SerializationException;
 
 /**
- * pet fact producer app
- * 
+ * Dog fact producer app
+ * fetches facts from the cat facts API, and streams the data to the dogFacts topic on the Confluent cloud
  */
 public class CatProducer 
 {
@@ -42,7 +43,7 @@ public class CatProducer
         try (Producer<String,GenericRecord> producer = new KafkaProducer<>(props)) {
 
             // reading schema
-            Schema userSchema = loadSchema("schema-catFacts-value-v2.avsc");
+            Schema avroSchema = loadSchema("schema-catFacts-value-v2.avsc");
 
             // production loop
             boolean keepProducing = true;
@@ -54,7 +55,7 @@ public class CatProducer
                 // fetch fact
                 String catFact = fetchCatFact();
                 // populate record
-                petFactRecord = buildRecord(userSchema,
+                petFactRecord = buildRecord(avroSchema,
                     catFact.toLowerCase().contains("cats") ? "factual" : "anecdotal",
                     catFact);
 
@@ -78,7 +79,7 @@ public class CatProducer
     }
 
     /**
-     * 
+     * builds a fact record that will compy with the given schema, this is specific to the cat/dog facts
      * @param schema
      * @param species
      * @param type
@@ -95,7 +96,7 @@ public class CatProducer
     }
 
     /**
-     * 
+     * loads the schema from the given file
      * @param fName
      * @return
      */
@@ -121,7 +122,7 @@ public class CatProducer
     }
 
     /**
-     * 
+     * load the properties for the producer
      * @param fName
      * @return
      */
@@ -135,6 +136,9 @@ public class CatProducer
             e.printStackTrace();
             System.exit(-1);
         }
+
+        props.put("acks","all");
+        props.put("linger.ms", 0);
 
         // key and value serialisers
         props.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
@@ -174,17 +178,11 @@ public class CatProducer
             conn.disconnect();
 
         } catch (MalformedURLException e) {
-
             e.printStackTrace();
-
         } catch (IOException e) {
-
             e.printStackTrace();
-
         } catch (JSONException e) {
-
             e.printStackTrace();
-
         }
 
         return result;

@@ -13,8 +13,8 @@ CREATE STREAM DOGFACTSTREAM
 # creating pet factual stream from cat stream filtered by factType
 # this is the only way futher insertion seem to work...
 # make sure field names are between `` otherwise they are converted to uppercase
-CREATE STREAM PETFACTUALSTREAM
-    AS SELECT 'cat' AS `petSpecies', `factType`, `fact`
+CREATE STREAM PETFACTUALSTREAM WITH (PARTITIONS=2) AS
+    SELECT 'cat' AS `petSpecies`, `factType`, `fact`
     FROM CATFACTSTREAM
     WHERE `factType` = 'factual'
     EMIT CHANGES;

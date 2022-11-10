@@ -61,7 +61,7 @@ public class CatProducer
 
                 System.out.printf("producing: %s = %s in topic %s\n",key,petFactRecord.toString(),topic);
                 // send record to kafka topic
-                producer.send(new ProducerRecord<String,GenericRecord>(topic,key,petFactRecord));
+                producer.send(new ProducerRecord<String,GenericRecord>(topic,petFactRecord));
 
                 Thread.sleep(500);
 

@@ -31,19 +31,26 @@ import org.apache.kafka.common.errors.SerializationException;
  */
 public class CatProducer 
 {
+
+    private static int LINGER_MS = 0;
+    private static int BATCH_SIZE = 16384;
+    private static String ACKS = "all";
+    private static String KEY = null;
+    private static String SCHEMA_PATH = "schema-catFacts-value-v2.avsc";
+    private static String PROPS_PATH = "java.config";
+    private static int SLEEP_MS = 500;
     
     public static void main( String[] args )
     {
         // loading properties, setting topic, and key for produced events
-        Properties props = loadProperties("java.config");
+        Properties props = loadProperties(PROPS_PATH);
         String topic = "catFacts";
-        String key = "catFact";
 
         // creating producer
         try (Producer<String,GenericRecord> producer = new KafkaProducer<>(props)) {
 
             // reading schema
-            Schema avroSchema = loadSchema("schema-catFacts-value-v2.avsc");
+            Schema avroSchema = loadSchema(SCHEMA_PATH);
 
             // production loop
             boolean keepProducing = true;
@@ -59,11 +66,37 @@ public class CatProducer
                     catFact.toLowerCase().contains("cats") ? "factual" : "anecdotal",
                     catFact);
 
-                System.out.printf("producing: %s = %s in topic %s\n",key,petFactRecord.toString(),topic);
+                System.out.printf("producing in topic %s: key=%s, value=%s\n",topic,KEY,truncated(petFactRecord.toString(),80));
                 // send record to kafka topic
-                producer.send(new ProducerRecord<String,GenericRecord>(topic,petFactRecord));
+                if (KEY == null) {
+                    producer.send(new ProducerRecord<String,GenericRecord>(topic,petFactRecord),(recordMetadata, exception) -> {
+                        if (exception == null) {
+                            System.out.println("Fact " + recordMetadata.toString() +
+                                    " written to partition " + recordMetadata.partition() +
+                                    " of topic " + recordMetadata.topic() +
+                                    " at offset " + recordMetadata.offset() +
+                                        " timestamp " + recordMetadata.timestamp());
+                        } else {
+                            System.err.println("An error occurred");
+                            exception.printStackTrace(System.err);
+                        }
+                    });
+                } else {
+                    producer.send(new ProducerRecord<String,GenericRecord>(topic,KEY,petFactRecord),(recordMetadata, exception) -> {
+                        if (exception == null) {
+                            System.out.println("Fact " + recordMetadata.toString() +
+                                    " written to partition " + recordMetadata.partition() +
+                                    " of topic " + recordMetadata.topic() +
+                                    " at offset " + recordMetadata.offset() +
+                                        " timestamp " + recordMetadata.timestamp());
+                        } else {
+                            System.err.println("An error occurred");
+                            exception.printStackTrace(System.err);
+                        }
+                    });
+                }
 
-                Thread.sleep(500);
+                Thread.sleep(SLEEP_MS);
 
                 //keepProducing = false;
             }
@@ -137,9 +170,9 @@ public class CatProducer
             System.exit(-1);
         }
 
-        props.put("acks","all");
-        props.put("batch.size",16384);
-        props.put("linger.ms", 0);
+        props.put("acks",ACKS);
+        props.put("batch.size",BATCH_SIZE);
+        props.put("linger.ms", LINGER_MS);
 
         // key and value serialisers
         props.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
@@ -187,6 +220,12 @@ public class CatProducer
         }
 
         return result;
+    }
+
+    private static String truncated(String text, int length) {
+        if (length < 3) length = 3;
+        if (text.length() <= length-3) return text;
+        return text.substring(0,length-3) + "...";
     }
 
 }

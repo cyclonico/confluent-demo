@@ -41,7 +41,7 @@ public class FactualConsumer
                 ConsumerRecords<String,GenericRecord> records = consumer.poll(Duration.ofMillis(1000));
                 for (ConsumerRecord<String,GenericRecord> record : records) {
                     // displaying all fetched records
-                    System.out.printf("offset=%d, partition=%d, key=%s, value=%s\n",record.offset(),record.partition(), record.key(),record.value());
+                    System.out.printf("offset=%d, partition=%d, key=%s, value=%s\n",record.offset(),record.partition(), record.key(),truncated(record.value().toString(),80));
                 }
             }
         } catch (KafkaException e) {
@@ -74,4 +74,11 @@ public class FactualConsumer
 
         return props;
     }
+
+    private static String truncated(String text, int length) {
+        if (length < 3) length = 3;
+        if (text.length() <= length-3) return text;
+        return text.substring(0,length-3) + "...";
+    }
+
 }

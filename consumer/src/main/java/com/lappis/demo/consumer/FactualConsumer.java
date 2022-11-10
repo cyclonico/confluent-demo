@@ -41,7 +41,7 @@ public class FactualConsumer
                 ConsumerRecords<String,GenericRecord> records = consumer.poll(Duration.ofMillis(1000));
                 for (ConsumerRecord<String,GenericRecord> record : records) {
                     // displaying all fetched records
-                    System.out.printf("offset: %d, partition: %d, key: %s, value: %s\n",record.offset(),record.partition(), record.key(),record.value());
+                    System.out.printf("offset=%d, partition=%d, key=%s, value=%s\n",record.offset(),record.partition(), record.key(),record.value());
                 }
             }
         } catch (KafkaException e) {

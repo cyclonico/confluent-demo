@@ -1,6 +1,6 @@
 Demonstration of Confluent producer and consumer.
 
-I did not include the java.config file with the API keys and secrets in the public repository, I'm attaching it to this email instead.
+The configuration file java.config containing the API keys and secrets is not included in the public repository; it is however needed to run the producers and consumers. The file example.config is included for guidance with the api key information removed.
 
 Brief description:
     - 2 producers getting "facts" each from an API, classifying them as factual or anecdotal; each producer is producing to a separate topic ("catFacts" and "dogFacts")

@@ -1,0 +1,10 @@
+Demonstration of Confluent producer and consumer.
+
+I did not include the java.config file with the API keys and secrets in the public repository, I'm attaching it to this email instead.
+
+Brief description:
+    - 2 producers getting "facts" each from an API, classifying them as factual or anecdotal; each producer is producing to a separate topic ("catFacts" and "dogFacts")
+    - ksql persistent queries filtering the streams from the topics above into a factual stream (cat and dog combined), and feeding a "petFactuals" topic
+    - consumer polling the "petFactuals" topic and displaying on the console.
+
+I used Java, Visual Studio Code and Maven for the development.
